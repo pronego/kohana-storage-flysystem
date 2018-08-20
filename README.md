@@ -30,11 +30,11 @@ Download package in modules folder `modules/kohana-storage`
 Enable in the module
 
 ```
-Kohana::modules(array(
+Kohana::modules([
     ...
-    'resque' => 'modules/kohana-resque',
+    'storage' => 'modules/kohana-storage',
     ...
-));
+]);
 ```
 
 ## Configuration
