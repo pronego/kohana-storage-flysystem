@@ -7,7 +7,6 @@
  */
 abstract class Kohana_Storage_Base
 {
-    
     /**
      * Adapter object
      * @var unknown
@@ -21,16 +20,6 @@ abstract class Kohana_Storage_Base
     public function adapter()
     {
         // See if we need to load up a cached adapter
-        
-        
         return $this->_adapter;
     }
-    
-    /**
-     * Try to load up a cached adapter
-     */
-    
-    
-    
-    
 }

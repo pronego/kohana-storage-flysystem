@@ -45,12 +45,12 @@ Copy `config/storage.php` to `application/config/storage.php`
 
 Use the default disk
 
-* `Storage::instance()->put('file.txt', 'Contents');`
+* `Storage::instance()->write('file.txt', 'Contents');`
 * In production, this should point to your main filesystem like s3
 
 Use the local disk (for quick saves to local)
 
-* `Storage::local()->put('file.txt', 'Contents');`
+* `Storage::local()->write('file.txt', 'Contents');`
 * Need to make sure 'local' is configured like in the default config file
 
 Specify a disk to use

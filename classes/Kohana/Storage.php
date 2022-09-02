@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
+use League\Flysystem\Cached\CachedAdapter;
 
 /**
  * Kohana Storage class
@@ -15,6 +15,7 @@ use League\Flysystem\Filesystem;
  *
  *
  * @author Chris Go <chris@velocimedia.com>
+ * @author Dr. Manuel Lamotte-Schubert <mls@pronego.com>
  */
 
 class Kohana_Storage
@@ -38,50 +39,70 @@ class Kohana_Storage
      * // Access an instantiated disk directly
      * $local_disk = Storage::$instances['local'];
      *
-     * @param unknown $disk
-     * @throws Storage_Exception
+     * @param string|array $storage Disk string or Array containing a valid config block.
+     *
      * @return Kohana_Storage
+     *@throws Storage_Exception
      */
-    public static function instance($disk = null)
+    public static function instance($storage = NULL)
     {
-        // If there is no disk supplied, use the default disk
-        if (empty($disk)) {
-            $disk = Kohana::$config->load('storage.default');
+        // Disk string or config array provided?
+        if (is_string($storage))
+        {
+            // If there is no disk supplied, use the default disk
+            if (empty($storage))
+            {
+                $storage = Kohana::$config->load('storage.default');
+            }
+            // If initiated already, just return that disk
+            if ( ! empty(Storage::$instances[$storage]))
+            {
+                return Storage::$instances[$storage];
+            }
+
+            // Load disks config
+            $config = Kohana::$config->load('storage');
+
+            // If config does not exist for the disk specific, throw exception
+            if ( ! $config->offsetExists($storage))
+            {
+                throw new Storage_Exception('Failed to load Kohana Storage disk: :disk', [
+                    ':disk' => $storage,
+                ]);
+            }
+
+            // Load config for disk
+            $config = $config->get($storage);
         }
-        // If initiated already, just return that disk
-        if (!empty(Storage::$instances[$disk])) {
-            return Storage::$instances[$disk];
+        else
+        {
+            $config = (array) $storage;
+            // Look for a key 'name' in config array, otherwise generate a unique temporary name
+            $storage = Arr::get($config, 'name', uniqid('dynamic_'));
         }
-        // Load config
-        $config = Kohana::$config->load('storage');
-        // If config does not exist for the disk specific, throw exception
-        if ( ! $config->offsetExists($disk)) {
-            throw new Storage_Exception('Failed to load Kohana Storage disk: :disk', [
-                ':disk' => $disk,
-            ]);
-        }
-        // Load config for disk
-        $config = $config->get($disk);
+
         // Create a new adapter
         $storage_class_name = 'Storage_'.ucfirst(Arr::get($config, 'driver'));
         $storage_class = new $storage_class_name($config);
         // If there is a cache, create the cached adapter
-        $cache = Arr::get($config, 'cache', null);
-        if (!empty($cache)) {
-            $config = Kohana::$config->load('storage.'.$disk.'.cache');
+        $cache = Arr::get($config, 'cache');
+        if ( ! empty($cache))
+        {
+            $config = Kohana::$config->load('storage.'.$storage.'.cache');
             $cache_class_name = 'Storage_Cache_'.ucfirst(Arr::get($config, 'store'));
             $cache_class = new $cache_class_name($config);
-            $adapter = new \League\Flysystem\Cached\CachedAdapter(
-                $storage_class->adapter(),
-                $cache_class->store()
-            );
-        } else {
+            $adapter = new CachedAdapter($storage_class->adapter(), $cache_class->store());
+        }
+        else
+        {
             $adapter = $storage_class->adapter();
         }
+
         // Create the filesystem object
-        Storage::$instances[$disk] = new Filesystem($storage_class->adapter());
+        Storage::$instances[$storage] = new Filesystem($adapter);
+
         // Return the instance
-        return Storage::$instances[$disk];
+        return Storage::$instances[$storage];
     }
     
     /**
@@ -92,7 +113,4 @@ class Kohana_Storage
     {
         return self::instance('local');
     }
-    
-
-  
 }
