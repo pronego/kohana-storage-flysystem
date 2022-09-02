@@ -55,9 +55,9 @@ class Kohana_Storage
                 $storage = Kohana::$config->load('storage.default');
             }
             // If initiated already, just return that disk
-            if ( ! empty(Storage::$instances[$storage]))
+            if ( ! empty(self::$instances[$storage]))
             {
-                return Storage::$instances[$storage];
+                return self::$instances[$storage];
             }
 
             // Load disks config
@@ -99,10 +99,10 @@ class Kohana_Storage
         }
 
         // Create the filesystem object
-        Storage::$instances[$storage] = new Filesystem($adapter);
+        self::$instances[$storage] = new Filesystem($adapter);
 
         // Return the instance
-        return Storage::$instances[$storage];
+        return self::$instances[$storage];
     }
     
     /**
