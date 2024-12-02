@@ -11,7 +11,11 @@ use \League\Flysystem\Filesystem as FlysystemFilesystem;
  */
 class Filesystem extends FlysystemFilesystem
 {
-	public $config;
+
+	/**
+	 * @var array
+	 */
+	public $config = [];
 
 
 	/**
@@ -57,7 +61,7 @@ class Filesystem extends FlysystemFilesystem
 
 	/**
 	 * @param string      $path
-	 * @param             $external_url
+	 * @param mixed       $external_url string|false|null
 	 * @param string|NULL $protocol
 	 *
 	 * @return false|string
