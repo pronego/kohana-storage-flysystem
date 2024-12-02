@@ -11,15 +11,20 @@ use \League\Flysystem\Filesystem as FlysystemFilesystem;
  */
 class Filesystem extends FlysystemFilesystem
 {
-    /**
-     * Prepend to a file.
-     *
-     * @param  string  $path
-     * @param  string  $data
-     * @param  string  $separator
-     * @return bool
-     */
-    public function prepend($path, $data, $separator = PHP_EOL)
+	public $config;
+
+
+	/**
+	 * Prepend to a file.
+	 *
+	 * @param string $path
+	 * @param string $data
+	 * @param string $separator
+	 *
+	 * @return bool
+	 * @throws \League\Flysystem\FilesystemException
+	 */
+    public function prepend(string $path, string $data, string $separator = PHP_EOL)
     {
         if ($this->fileExists($path))
         {
@@ -48,4 +53,33 @@ class Filesystem extends FlysystemFilesystem
 
         return $this->write($path, $data);
     }
+
+
+	/**
+	 * @param string      $path
+	 * @param             $external_url
+	 * @param string|NULL $protocol
+	 *
+	 * @return false|string
+	 */
+	public function url(string $path, $external_url = FALSE, string $protocol = NULL)
+	{
+		if (empty($protocol))
+		{
+			$protocol = Arr::get($this->config, 'protocol');
+		}
+
+		// Allows external (base) url, for example, pointing to video cloud
+		if ($external_url)
+		{
+			$this->config['url'] = $external_url;
+		}
+
+		if ( ! $this->config['url'])
+		{
+			return FALSE;
+		}
+
+		return $protocol . '://' . $this->config['url'] . '/'. trim($path, '/');
+	}
 }
