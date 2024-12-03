@@ -86,4 +86,23 @@ class Filesystem extends FlysystemFilesystem
 
 		return $protocol . '://' . $this->config['url'] . '/'. trim($path, '/');
 	}
+
+
+	/**
+	 * @param string $storage_path
+	 * @param string $local_path
+	 *
+	 * @return void
+	 * @throws \League\Flysystem\FilesystemException
+	 */
+	public function get(string $storage_path, string $local_path)
+	{
+		$storage_stream = $this->readStream($storage_path);
+		$local_file = fopen($local_path, 'w');
+
+		stream_copy_to_stream($storage_stream, $local_file);
+
+		fclose($local_file);
+		fclose($storage_stream);
+	}
 }
