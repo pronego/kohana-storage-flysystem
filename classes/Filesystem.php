@@ -105,4 +105,23 @@ class Filesystem extends FlysystemFilesystem
 		fclose($local_file);
 		fclose($storage_stream);
 	}
+
+
+	/**
+	 * @param string $source
+	 * @param string $destination
+	 * @param array  $config
+	 * @param bool   $overwrite
+	 *
+	 * @return void
+	 * @throws \League\Flysystem\FilesystemException
+	 */
+	public function move(string $source, string $destination, array $config = [], bool $overwrite = TRUE): void
+	{
+		if ($overwrite AND $this->fileExists($destination)) {
+			$this->delete($destination);
+		}
+
+		parent::move($source, $destination, $config);
+	}
 }
