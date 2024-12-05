@@ -74,17 +74,20 @@ class Filesystem extends FlysystemFilesystem
 		}
 
 		// Allows external (base) url, for example, pointing to video cloud
-		if ($external_url)
-		{
-			$this->config['url'] = $external_url;
-		}
+		$url = ($external_url ?: $this->config['url']);
 
-		if ( ! $this->config['url'])
+		if ( ! $url)
 		{
 			return FALSE;
 		}
 
-		return $protocol . '://' . $this->config['url'] . '/'. trim($path, '/');
+		// Append directory if not exists
+		if ( ! strpos('/' . $path, $this->config['directory']))
+		{
+			$path = $this->config['directory'] . trim($path, '/');
+		}
+
+		return $protocol . '://' . $url . '/'. trim($path, '/');
 	}
 
 
