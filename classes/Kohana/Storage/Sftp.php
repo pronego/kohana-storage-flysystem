@@ -25,18 +25,23 @@ class Kohana_Storage_Sftp extends Storage_Base
 
 			// from here optional
 			Arr::get($config, 'password') // password (optional, default: null) set to null if privateKey is used
-		//Arr::get($config, 'private_key'),
-		//Arr::get($config, 'pass_phrase'),
-		//Arr::get($config, 'port', 22),
-		//Arr::get($config, 'use_agent'),
-		//Arr::get($config, 'timeout'),
-		//Arr::get($config, 'max_tries'),
-		//Arr::get($config, 'finterprint_string'),
-		//Arr::get($config, 'connectivity_checker')
+			//Arr::get($config, 'private_key'),
+			//Arr::get($config, 'pass_phrase'),
+			//Arr::get($config, 'port', 22),
+			//Arr::get($config, 'use_agent'),
+			//Arr::get($config, 'timeout'),
+			//Arr::get($config, 'max_tries'),
+			//Arr::get($config, 'finterprint_string'),
+			//Arr::get($config, 'connectivity_checker')
 		);
 
 		$visibilityConverter = new PortableVisibilityConverter(0644, 0600, 0755, 0700, Visibility::PUBLIC);
 
-		$this->_adapter = new SftpAdapter($connection_provider, Arr::get($config, 'directory', '.'), $visibilityConverter);
+		$root = Text::remove_duplicate_chars('/', implode('/', [
+			Arr::get($config, 'root_path', '.'),
+			Arr::get($config, 'directory', ''),
+		]));
+
+		$this->_adapter = new SftpAdapter($connection_provider, $root, $visibilityConverter);
 	}
 }
